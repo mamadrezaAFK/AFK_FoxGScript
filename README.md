@@ -1,7 +1,7 @@
 <div align="center">
 
 # 🛡️ AFK FoxG Integrity Guard (VMP Edition)
-### Dedicated Client-State & Anti-Tamper Verification for VMP Launcher (`vmp.ir`)
+### High-Performance Client Integrity & Anti-Tamper Middleware for [VMP.ir](https://vmp.ir) Launcher
 
 [![Platform: VMP.ir](https://img.shields.io/badge/Platform-VMP.ir%20Exclusive-ff4757?style=for-the-badge&logo=shield)](https://vmp.ir)
 [![Language: Lua](https://img.shields.io/badge/Language-Lua%205.4-000080.svg?style=for-the-badge&logo=lua)](https://www.lua.org)
@@ -9,41 +9,42 @@
 [![Website](https://img.shields.io/badge/Website-mamadreza.top-00c853?style=for-the-badge&logo=googlechrome&logoColor=white)](https://mamadreza.top)
 
 <p align="center">
-  <b>یک میدل‌ور امنیتی سبک و پیشرفته، طراحی‌شده به‌طور اختصاصی برای سرورهای مبتنی بر لانچر VMP جهت اعتبارسنجی لانچر، بررسی هوک حافظه و مقابله با بای‌پس کلاینت.</b>
+  <b>A specialized, zero-overhead client validation middleware designed exclusively for FiveM servers utilizing the Iranian VMP launcher. Guarantees active launcher state, defends against function hooking, and terminates unauthenticated sessions.</b>
 </p>
 
-[ویژگی‌های کلیدی](#-ویژگی‌های-کلیدی-key-features) •
-[نحوه عملکرد](#-نحوه-عملکرد-architecture-flow) •
-[نصب و راه‌اندازی](#-نصب-و-راه‌اندازی-installation) •
-[کانفیگ](#-تنظیمات-configuration) •
-[کامندها](#-دستورات-commands) •
-[پشتیبانی و ارتباط](#-پشتیبانی-و-ارتباطات-support)
+[Key Features](#-key-features) •
+[Architecture Flow](#-architecture-flow) •
+[Installation](#-installation) •
+[Configuration](#-configuration) •
+[Commands](#-commands) •
+[Support & Community](#-support--community)
 
 </div>
 
 ---
 
-## 📌 معرفی پروژه (Overview)
+## 📌 Overview
 
-اسکریپت **AFK FoxG Integrity Guard** یک راهکار امنیتی بهینه‌سازی‌شده برای پلتفرم **[VMP.ir](https://vmp.ir)** است. این اسکریپت تضمین می‌کند که تمامی کلاینت‌های متصل به سرور، الزامات فعال بودن لانچر VMP و ماژول‌های امنیتی FoxG (`IsFoxAlive`) را پاس کرده باشند.
+**AFK FoxG Integrity Guard** is an anti-bypass and validation suite engineered specifically for the **VMP.ir** platform. Rather than relying on intrusive, CPU-heavy scanning routines, it utilizes a non-blocking **Asynchronous Challenge-Response Model** that interacts directly with VMP's native runtime environment (`IsFoxAlive`).
 
-سیستم با بهره‌گیری از **Pre-Auth Handshake** (در فاز `deferrals` قبل از ورود به سرور) و چالش‌های رمزشده پویا (Challenge-Response Heartbeat)، مانع از حضور کلاینت‌های دستکاری‌شده، فیک، یا بدون لانچر در سرور می‌شود.
-
----
-
-## ⚡ ویژگی‌های کلیدی (Key Features)
-
-* **🇮🇷 سازگاری اختصاصی با VMP:** اعتبارسنجی مستقیم کدهای اختصاصی لانچر ایرانی VMP بدون تداخل یا کرش.
-* **🔒 تأیید قبل از ورود (Pre-Auth Deferral):** اعتبارسنجی لانچر قبل از لود شدن کامل پلیر در سرور (جلوگیری از بار اضافه بر منابع گیم).
-* **💉 مانیتورینگ عدم دستکاری توابع (Anti-Hook & Tamper Guard):** استفاده از چالش‌های خام (`raw_type` و `pcall`) جهت بررسی دست‌نخورده بودن توابع بومی لانچر و جلوگیری از Hook / Dummy Return.
-* **🎲 توکن‌های چالش چرخشی (Dynamic Heartbeat):** ردوبدل کردن توکن‌های یک‌بارمصرف بر بستر زمان‌بندی نامتقارن، جهت بی‌اثر کردن پکت‌های تزریقی (Replay Attack).
-* **🛑 قرنطینه آنی (Instant Lockdown):** در صورت تشخیص دور زدن یا بسته شدن لانچر، پلیر در لحظه فریز، نامرئی و صفحه سیاه شده و سپس مجازات اعمال می‌گردد.
-* **📊 لاگ telemetry جامع در دیسکورد:** ارسال گزارش کامل همراه با لاینسس، متادیتاهای کاراکتر ESX (شغل، دسترسی، آیدی رول‌پلی)، مشخصات شبکه و وضعیت تخلف.
-* **💾 سیستم بن خودکار:** سازگار با دیتابیس‌های `oxmysql` و `mysql-async` جهت اعمال بن بر روی شناسه پلیر.
+The system validates client legitimacy during the native **deferrals pipeline** (before the player is accepted onto the server) and continuously enforces cryptographic token-based heartbeats during active gameplay. If a client attempts to bypass the launcher, mock launcher functions, or disconnect the client-side bridge, the server automatically quarantines and drops/bans the target.
 
 ---
 
-## 🔄 نحوه عملکرد (Architecture Flow)
+## ⚡ Key Features
+
+* **🇮🇷 Exclusive VMP.ir Architecture:** Built from the ground up to interface seamlessly with the VMP launcher environment without causing game crashes, stuttering, or compatibility issues.
+* **🔒 Pre-Auth Handshake Deferral:** Enforces integrity verification *before* player initialization. Malicious clients without the active launcher are dropped before they ever load a single resource.
+* **💉 Memory Hook & Anti-Tamper Protection:** Evaluates function definitions using raw sandboxed `pcall` wrappers and strict type-validation to detect API overrides, Lua hijackers, and dummy return values.
+* **🎲 Asynchronous Dynamic Heartbeat:** Server dispatches randomized, single-use cryptographic tokens per verification tick to completely neutralize packet spoofing and replay attacks.
+* **🛑 Instant Quarantine (Lockdown):** If a client loses its verified state during a session, the script triggers an immediate client lockdown (disables controls, freezes entity, blacks out screen) to prevent memory exploitation before removal.
+* **📊 Discord Telemetry Logging:** Comprehensive reporting system forwarding rich embeds containing Discord ID, Steam ID, License, IP, Ping, RP Name, Job, and Permission levels.
+* **💾 Database Banning:** Out-of-the-box integration for `oxmysql` and `mysql-async` with configurable penalty types (kick vs. permanent/timed bans).
+* **⚡ 0.00ms Resmon Profile:** Highly optimized event loops ensure zero impact on both client frame rates and server-side tick times.
+
+---
+
+## 🔄 Architecture Flow
 ```mermaid
 sequenceDiagram
 autonumber
@@ -52,17 +53,17 @@ participant Deferral as Server Deferrals
 participant Server as AFK Auth Server
 participant DB as Discord / Database
 
-Note over Player: لانچر VMP در حال اجراست (FoxG Active)
-Player->>Deferral: درخواست اتصال (playerConnecting)
-Deferral->>Server: ایجاد نشست امنیتی با توکن موقت
-Player->>Server: ارسال StateBag آماده‌سازی کلاینت
-Server->>Player: ارسال چالش اولیه (afk_foxg:challenge)
-Player->>Player: اجرای Evaluate() برای صحت‌سنجی IsFoxAlive و Anti-Hook
-Player-->>Server: برگشت پاسخ با توکن معتبر
-alt اعتبارسنجی موفق (VMP تایید شد)
-Server->>Deferral: deferrals.done() (ورود مجاز)
-Note over Player,Server: ورود به چرخه مانیتورینگ Heartbeat مداوم
-else لانچر فعال نیست یا دستکاری شده
-Server->>DB: ثبت تخلف در دیسکورد و اعمال بن دیتابیس
-Server-->>Player: قطع ارتباط (Drop / Ban) با قرنطینه کامل
+Note over Player: VMP Launcher Running (FoxG Active)
+Player->>Deferral: Connection Request (playerConnecting)
+Deferral->>Server: Initialize Session with Deferral Hold
+Player->>Server: Signal Client StateBag ("afkfoxg_ready")
+Server->>Player: Issue Challenge (afk_foxg:challenge + Token)
+Player->>Player: Run Evaluate() (Anti-Hook & IsFoxAlive Check)
+Player-->>Server: Dispatch Reply (replyPreAuth + Token)
+alt Integrity Verified (Launcher Valid)
+Server->>Deferral: deferrals.done() (Player Joins)
+Note over Player,Server: Active Heartbeat Monitoring Initiated
+else Integrity Failed / Tampered
+Server->>DB: Telemetry Alert & Database Ban
+Server-->>Player: Quarantine & Drop Connection
 end
